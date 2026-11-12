@@ -1,0 +1,581 @@
+{
+  "ok": true,
+  "params": {
+    "min_score": 0,
+    "margin": 10
+  },
+  "scope": "factory-a",
+  "device_count": 11,
+  "optimal_total": 745,
+  "equivalent_optima": 1,
+  "assignment": {
+    "total": 745,
+    "pairs": {
+      "冷却泵 PA-101X": "AST-002",
+      "冷却泵 PA-900": "AST-007",
+      "冷却泵－ＰＡ－１００": "AST-001",
+      "循环泵": "AST-003",
+      "循环风机 ＦＡＮ－１": "AST-004",
+      "空压机 XZ-77": "AST-008",
+      "空压机三号": "AST-006",
+      "送风机": "AST-005"
+    },
+    "unmatched_devices": [
+      "···",
+      "冷却泵 PA-100B",
+      "冷却泵 XZ-77"
+    ],
+    "unmatched_assets": [],
+    "equivalent_optima": 1,
+    "uniqueness_note": "展示顺序按设备名与资产编号固定；同分方案数量由 equivalent_optima 暴露，排序不作为唯一性结论"
+  },
+  "devices": [
+    {
+      "device": "···",
+      "clean_name": "",
+      "status": "UNMATCHED",
+      "decision": "UNMATCHED",
+      "matched_asset_id": null,
+      "matched_by": null,
+      "score": 0,
+      "candidate": null,
+      "source": {
+        "partition": "factory-a",
+        "offset": 9,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": null,
+      "gap_rule": null,
+      "alternative_total": null,
+      "alternative_asset_ids": [],
+      "alternative_exists": true,
+      "alternative_pairs": null,
+      "alternatives": [],
+      "displaced_devices": [],
+      "reason": "EMPTY_DEVICE_NAME",
+      "reason_detail": "名称清理后为空串，按口径无效，不参与匹配"
+    },
+    {
+      "device": "冷却泵 PA-100B",
+      "clean_name": "冷却泵pa100b",
+      "status": "UNMATCHED",
+      "decision": "UNMATCHED",
+      "matched_asset_id": null,
+      "matched_by": null,
+      "score": 0,
+      "candidate": null,
+      "source": {
+        "partition": "factory-a",
+        "offset": 2,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": 10,
+      "gap_rule": null,
+      "alternative_total": 735,
+      "alternative_asset_ids": [
+        "AST-001"
+      ],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-100B": "AST-001",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-002",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-005"
+      },
+      "alternatives": [
+        {
+          "device": "冷却泵 PA-100B",
+          "asset_id": "AST-001",
+          "kind": "FORMAL",
+          "name_raw": "冷却泵 PA-100",
+          "name_clean": "冷却泵pa100",
+          "distance": 1,
+          "score": 90,
+          "shared_alias": false
+        }
+      ],
+      "displaced_devices": [
+        "冷却泵 PA-101X",
+        "冷却泵－ＰＡ－１００"
+      ],
+      "reason": "UNMATCHED_BY_GLOBAL_OPTIMUM",
+      "reason_detail": "存在合格候选，但把它配上去会挤掉分数更高的设备或降低全局总分；未配对得 0 仍为全局最优"
+    },
+    {
+      "device": "冷却泵 PA-101X",
+      "clean_name": "冷却泵pa101x",
+      "status": "AUTO_PENDING",
+      "decision": "PENDING",
+      "matched_asset_id": "AST-002",
+      "matched_by": "AUTO",
+      "score": 90,
+      "candidate": {
+        "device": "冷却泵 PA-101X",
+        "asset_id": "AST-002",
+        "kind": "FORMAL",
+        "name_raw": "冷却泵 PA-101",
+        "name_clean": "冷却泵pa101",
+        "distance": 1,
+        "score": 90,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 1,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": 10,
+      "gap_rule": "gap=10 <= margin=10",
+      "alternative_total": 735,
+      "alternative_asset_ids": [],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-100B": "AST-002",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-001",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-005"
+      },
+      "alternatives": [],
+      "displaced_devices": [],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "冷却泵 PA-900",
+      "clean_name": "冷却泵pa900",
+      "status": "AUTO_PENDING",
+      "decision": "PENDING",
+      "matched_asset_id": "AST-007",
+      "matched_by": "AUTO",
+      "score": 80,
+      "candidate": {
+        "device": "冷却泵 PA-900",
+        "asset_id": "AST-007",
+        "kind": "FORMAL",
+        "name_raw": "冷却泵 PB-200",
+        "name_clean": "冷却泵pb200",
+        "distance": 2,
+        "score": 80,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 3,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": 10,
+      "gap_rule": "gap=10 <= margin=10",
+      "alternative_total": 735,
+      "alternative_asset_ids": [
+        "AST-001"
+      ],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-001",
+        "冷却泵－ＰＡ－１００": "AST-007",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-005"
+      },
+      "alternatives": [
+        {
+          "device": "冷却泵 PA-900",
+          "asset_id": "AST-001",
+          "kind": "FORMAL",
+          "name_raw": "冷却泵 PA-100",
+          "name_clean": "冷却泵pa100",
+          "distance": 1,
+          "score": 90,
+          "shared_alias": false
+        }
+      ],
+      "displaced_devices": [
+        "冷却泵－ＰＡ－１００"
+      ],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "冷却泵 XZ-77",
+      "clean_name": "冷却泵xz77",
+      "status": "UNMATCHED",
+      "decision": "UNMATCHED",
+      "matched_asset_id": null,
+      "matched_by": null,
+      "score": 0,
+      "candidate": null,
+      "source": {
+        "partition": "factory-a",
+        "offset": 10,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": true,
+      "gap": null,
+      "gap_rule": "无替代方案（强制配对也不可行）",
+      "alternative_total": null,
+      "alternative_asset_ids": [],
+      "alternative_exists": false,
+      "alternative_pairs": null,
+      "alternatives": [],
+      "displaced_devices": [
+        "冷却泵 PA-101X",
+        "冷却泵 PA-900",
+        "冷却泵－ＰＡ－１００",
+        "循环泵",
+        "循环风机 ＦＡＮ－１",
+        "空压机 XZ-77",
+        "空压机三号",
+        "送风机"
+      ],
+      "reason": "NO_QUALIFYING_CANDIDATE",
+      "reason_detail": "与全部资产名称的编辑距离都超过 2，没有合格候选"
+    },
+    {
+      "device": "冷却泵－ＰＡ－１００",
+      "clean_name": "冷却泵pa100",
+      "status": "AUTO_PENDING",
+      "decision": "PENDING",
+      "matched_asset_id": "AST-001",
+      "matched_by": "AUTO",
+      "score": 100,
+      "candidate": {
+        "device": "冷却泵－ＰＡ－１００",
+        "asset_id": "AST-001",
+        "kind": "FORMAL",
+        "name_raw": "冷却泵 PA-100",
+        "name_clean": "冷却泵pa100",
+        "distance": 0,
+        "score": 100,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 0,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": 10,
+      "gap_rule": "gap=10 <= margin=10",
+      "alternative_total": 735,
+      "alternative_asset_ids": [
+        "AST-007"
+      ],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-001",
+        "冷却泵－ＰＡ－１００": "AST-007",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-005"
+      },
+      "alternatives": [
+        {
+          "device": "冷却泵－ＰＡ－１００",
+          "asset_id": "AST-007",
+          "kind": "FORMAL",
+          "name_raw": "冷却泵 PB-200",
+          "name_clean": "冷却泵pb200",
+          "distance": 2,
+          "score": 80,
+          "shared_alias": false
+        }
+      ],
+      "displaced_devices": [
+        "冷却泵 PA-900"
+      ],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "循环泵",
+      "clean_name": "循环泵",
+      "status": "AUTO_CONFIRMED",
+      "decision": "CONFIRMED",
+      "matched_asset_id": "AST-003",
+      "matched_by": "AUTO",
+      "score": 95,
+      "candidate": {
+        "device": "循环泵",
+        "asset_id": "AST-003",
+        "kind": "ALIAS",
+        "name_raw": "循环泵",
+        "name_clean": "循环泵",
+        "distance": 0,
+        "score": 95,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 6,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": true,
+      "gap": 95,
+      "gap_rule": "gap=95 > margin=10",
+      "alternative_total": 650,
+      "alternative_asset_ids": [],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-001",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-005"
+      },
+      "alternatives": [],
+      "displaced_devices": [],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "循环风机 ＦＡＮ－１",
+      "clean_name": "循环风机fan1",
+      "status": "AUTO_PENDING",
+      "decision": "PENDING",
+      "matched_asset_id": "AST-004",
+      "matched_by": "AUTO",
+      "score": 100,
+      "candidate": {
+        "device": "循环风机 ＦＡＮ－１",
+        "asset_id": "AST-004",
+        "kind": "FORMAL",
+        "name_raw": "循环风机 FAN-1",
+        "name_clean": "循环风机fan1",
+        "distance": 0,
+        "score": 100,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 4,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": 10,
+      "gap_rule": "gap=10 <= margin=10",
+      "alternative_total": 735,
+      "alternative_asset_ids": [
+        "AST-005"
+      ],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-001",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-005",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-004"
+      },
+      "alternatives": [
+        {
+          "device": "循环风机 ＦＡＮ－１",
+          "asset_id": "AST-005",
+          "kind": "FORMAL",
+          "name_raw": "循环风机 FAN-2",
+          "name_clean": "循环风机fan2",
+          "distance": 1,
+          "score": 90,
+          "shared_alias": false
+        }
+      ],
+      "displaced_devices": [
+        "送风机"
+      ],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "空压机 XZ-77",
+      "clean_name": "空压机xz77",
+      "status": "AUTO_CONFIRMED",
+      "decision": "CONFIRMED",
+      "matched_asset_id": "AST-008",
+      "matched_by": "AUTO",
+      "score": 100,
+      "candidate": {
+        "device": "空压机 XZ-77",
+        "asset_id": "AST-008",
+        "kind": "FORMAL",
+        "name_raw": "空压机 XZ-77",
+        "name_clean": "空压机xz77",
+        "distance": 0,
+        "score": 100,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 7,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": true,
+      "gap": 100,
+      "gap_rule": "gap=100 > margin=10",
+      "alternative_total": 645,
+      "alternative_asset_ids": [],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-001",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机三号": "AST-006",
+        "送风机": "AST-005"
+      },
+      "alternatives": [],
+      "displaced_devices": [],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "空压机三号",
+      "clean_name": "空压机三号",
+      "status": "AUTO_CONFIRMED",
+      "decision": "CONFIRMED",
+      "matched_asset_id": "AST-006",
+      "matched_by": "AUTO",
+      "score": 85,
+      "candidate": {
+        "device": "空压机三号",
+        "asset_id": "AST-006",
+        "kind": "ALIAS",
+        "name_raw": "空压机一号",
+        "name_clean": "空压机一号",
+        "distance": 1,
+        "score": 85,
+        "shared_alias": false
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 8,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": true,
+      "gap": 85,
+      "gap_rule": "gap=85 > margin=10",
+      "alternative_total": 660,
+      "alternative_asset_ids": [],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-001",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-004",
+        "空压机 XZ-77": "AST-008",
+        "送风机": "AST-005"
+      },
+      "alternatives": [],
+      "displaced_devices": [],
+      "reason": null,
+      "reason_detail": null
+    },
+    {
+      "device": "送风机",
+      "clean_name": "送风机",
+      "status": "AUTO_PENDING",
+      "decision": "PENDING",
+      "matched_asset_id": "AST-005",
+      "matched_by": "AUTO",
+      "score": 95,
+      "candidate": {
+        "device": "送风机",
+        "asset_id": "AST-005",
+        "kind": "ALIAS",
+        "name_raw": "送风机",
+        "name_clean": "送风机",
+        "distance": 0,
+        "score": 95,
+        "shared_alias": true
+      },
+      "source": {
+        "partition": "factory-a",
+        "offset": 5,
+        "writer_id": "w-signal-v1",
+        "reader_version": 1
+      },
+      "unique": false,
+      "gap": 10,
+      "gap_rule": "gap=10 <= margin=10",
+      "alternative_total": 735,
+      "alternative_asset_ids": [
+        "AST-004"
+      ],
+      "alternative_exists": true,
+      "alternative_pairs": {
+        "冷却泵 PA-101X": "AST-002",
+        "冷却泵 PA-900": "AST-007",
+        "冷却泵－ＰＡ－１００": "AST-001",
+        "循环泵": "AST-003",
+        "循环风机 ＦＡＮ－１": "AST-005",
+        "空压机 XZ-77": "AST-008",
+        "空压机三号": "AST-006",
+        "送风机": "AST-004"
+      },
+      "alternatives": [
+        {
+          "device": "送风机",
+          "asset_id": "AST-004",
+          "kind": "ALIAS",
+          "name_raw": "送风机",
+          "name_clean": "送风机",
+          "distance": 0,
+          "score": 95,
+          "shared_alias": true
+        }
+      ],
+      "displaced_devices": [
+        "循环风机 ＦＡＮ－１"
+      ],
+      "reason": null,
+      "reason_detail": null
+    }
+  ],
+  "human": {
+    "confirmations": [],
+    "bans": []
+  },
+  "run_id": 3,
+  "previous_run_ids": [
+    1,
+    2
+  ],
+  "inventory": {
+    "path": "/workspace/examples/entity_inventory/assets_v1.json",
+    "sha256": "bee01ec10334097297e715e46a35f4f0f87854b4233f858f1fd503c122e3a2f8",
+    "revision": "2026-11-12-inventory-v1",
+    "asset_count": 8
+  }
+}

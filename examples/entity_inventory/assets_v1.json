@@ -1,0 +1,13 @@
+{
+  "revision": "2026-11-12-inventory-v1",
+  "assets": [
+    {"asset_id": "AST-001", "name": "冷却泵 PA-100", "aliases": ["主冷却泵", "CWP-01"]},
+    {"asset_id": "AST-002", "name": "冷却泵 PA-101", "aliases": ["备用冷却泵", "CWP-02"]},
+    {"asset_id": "AST-003", "name": "冷却循环泵", "aliases": ["循环泵"]},
+    {"asset_id": "AST-004", "name": "循环风机 FAN-1", "aliases": ["送风机", "FAN-A"]},
+    {"asset_id": "AST-005", "name": "循环风机 FAN-2", "aliases": ["送风机", "FAN-B"]},
+    {"asset_id": "AST-006", "name": "空压机 AC-01", "aliases": ["空压机一号"]},
+    {"asset_id": "AST-007", "name": "冷却泵 PB-200", "aliases": ["备用水泵"]},
+    {"asset_id": "AST-008", "name": "空压机 XZ-77", "aliases": []}
+  ]
+}

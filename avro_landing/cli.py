@@ -32,6 +32,11 @@ from .adapter import LandingAdapter, Packet, SimulatedCrash
 from .compat import UnsupportedAvroStructure
 from .linkage import LinkageRecognizer, SimulatedCrash as LinkageSimulatedCrash
 from .linkage_audit import compare as compare_linkage
+from .entity_audit import audit_run as audit_entity_run
+from .entity_match import MatchParams, PlanRejected
+from .entity_names import MatchInputError, inventory_report, load_inventory
+from .entity_run import explain_device, explain_run, parse_human, run_matching
+from .entity_store import MatchRunStore
 from .linkage_store import (
     LinkageConfigurationError,
     LinkageStore,
@@ -241,6 +246,176 @@ def cmd_conflicts(args) -> None:
 
 
 # ---------------------------------------------------------------------- #
+# 离线实体匹配
+# ---------------------------------------------------------------------- #
+def _open_match(args) -> tuple[EventStore, MatchRunStore]:
+    store = EventStore(args.db)
+    store.connect()
+    return store, MatchRunStore(store)
+
+
+def _print_entity_plan(result) -> None:
+    plan = result["plan"]
+    body = plan.as_dict()
+    body["run_id"] = result["run_id"]
+    body["previous_run_ids"] = result["previous_run_ids"]
+    body["inventory"] = {
+        "path": result["inventory"].source_path,
+        "sha256": result["inventory"].sha256,
+        "revision": result["inventory"].revision,
+        "asset_count": len(result["inventory"].assets),
+    }
+    _print({"ok": True, **body})
+
+
+def cmd_entity_inventory_check(args) -> None:
+    try:
+        inventory = load_inventory(args.inventory)
+    except MatchInputError as exc:
+        _print({"ok": False, "inventory": args.inventory, **exc.as_dict()})
+        raise SystemExit(2)
+    report = inventory_report(inventory)
+    _print(report)
+    if args.strict_ambiguity and (
+        report["shared_aliases"] or report["duplicate_formal_names"]
+    ):
+        _print({
+            "ok": False,
+            "error": "台账存在共享别名或重复正式名（--strict-ambiguity），"
+                     "按歧义拒绝",
+            "shared_aliases": report["shared_aliases"],
+            "duplicate_formal_names": report["duplicate_formal_names"],
+        })
+        raise SystemExit(2)
+
+
+def cmd_entity_match_run(args) -> None:
+    if args.min_score < 0 or args.min_score > 100:
+        _print({"ok": False, "errors": [{
+            "code": "INVALID_MIN_SCORE",
+            "detail": f"min_score 必须在 0..100 之间，收到 {args.min_score}",
+        }]})
+        raise SystemExit(2)
+    if args.margin < 0:
+        _print({"ok": False, "errors": [{
+            "code": "INVALID_MARGIN",
+            "detail": f"margin 必须是非负整数，收到 {args.margin}",
+        }]})
+        raise SystemExit(2)
+    try:
+        inventory = load_inventory(args.inventory)
+        human = parse_human(args.confirm, args.ban)
+        params = MatchParams(min_score=args.min_score, margin=args.margin)
+    except (MatchInputError, PlanRejected) as exc:
+        errors = exc.errors if hasattr(exc, "errors") else [{
+            "code": "INVALID_INPUT", "detail": str(exc),
+        }]
+        _print({"ok": False, "errors": errors})
+        raise SystemExit(2)
+
+    store = EventStore(args.db)
+    store.connect()
+    try:
+        result = run_matching(
+            store, inventory=inventory, params=params, human=human,
+            scope=args.scope,
+        )
+    except PlanRejected as exc:
+        store.close()
+        _print({"ok": False, **exc.as_dict()})
+        raise SystemExit(2)
+    store.close()
+    _print_entity_plan(result)
+
+
+def cmd_entity_run_explain(args) -> None:
+    store, match_store = _open_match(args)
+    try:
+        report = explain_run(match_store, args.run_id, device=args.device)
+    finally:
+        store.close()
+    _print(report)
+    if not report.get("ok"):
+        raise SystemExit(1)
+
+
+def cmd_entity_runs(args) -> None:
+    store, match_store = _open_match(args)
+    runs = match_store.list_runs()
+    store.close()
+    _print({
+        "ok": True,
+        "count": len(runs),
+        "runs": [
+            {
+                "run_id": run["run_id"],
+                "created_at": run["created_at"],
+                "scope": run["scope"],
+                "params": {"min_score": run["min_score"], "margin": run["margin"]},
+                "inventory_revision": run["inventory_revision"],
+                "inventory_sha256": run["inventory_sha256"],
+                "device_count": run["device_count"],
+                "optimal_total": run["optimal_total"],
+                "equivalent_optima": run["equivalent_optima"],
+            }
+            for run in runs
+        ],
+    })
+
+
+def cmd_entity_explain(args) -> None:
+    store, match_store = _open_match(args)
+    if args.run_id is not None:
+        report = explain_run(match_store, args.run_id, device=args.device)
+        if not report.get("ok"):
+            store.close()
+            _print(report)
+            raise SystemExit(1)
+    else:
+        if args.device is None:
+            store.close()
+            raise SystemExit("--device 或 --run-id 至少给一个")
+        report = explain_device(match_store, args.device)
+    store.close()
+    _print(report)
+
+
+def cmd_entity_reset(args) -> None:
+    """清空离线匹配状态；接入层数据（events/ingress/checkpoints）保留。"""
+    store = EventStore(args.db)
+    store.connect()
+    MatchRunStore(store).ensure_schema()
+    names = [
+        "match_alternatives", "match_candidates", "match_sources",
+        "match_devices", "match_human_constraints", "match_runs",
+    ]
+    with store.transaction() as conn:
+        for name in names:
+            conn.execute(f"DELETE FROM {name}")
+    store.close()
+    _print({"ok": True, "cleared": names})
+
+
+def cmd_entity_run_audit(args) -> None:
+    store, match_store = _open_match(args)
+    run = match_store.get_run(args.run_id)
+    if run is None:
+        store.close()
+        _print({"ok": False, "error": f"运行 {args.run_id} 不存在"})
+        raise SystemExit(1)
+    report = audit_entity_run(
+        run,
+        match_store.run_devices(args.run_id),
+        match_store.run_candidates(args.run_id),
+        match_store.run_constraints(args.run_id),
+    )
+    store.close()
+    _print(report)
+    if not report["matched"]:
+        raise SystemExit(1)
+
+
+# ---------------------------------------------------------------------- #
 # 设备联动异常识别器
 # ---------------------------------------------------------------------- #
 def _parse_partitions(raw: str) -> list[str]:
@@ -425,6 +600,56 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("conflicts", help="查看重传冲突")
     p.add_argument("--db", required=True)
     p.set_defaults(func=cmd_conflicts)
+
+    # --- 离线实体匹配 -------------------------------------------------
+    p = sub.add_parser("entity-inventory-check",
+                       help="校验资产清单并暴露共享别名/重复正式名")
+    p.add_argument("--inventory", required=True)
+    p.add_argument("--strict-ambiguity", action="store_true",
+                   help="存在共享别名或重复正式名时以退出码 2 拒绝")
+    p.set_defaults(func=cmd_entity_inventory_check)
+
+    p = sub.add_parser("entity-match-run",
+                       help="从 events 的 device 唯一值与本地台账运行一次全局匹配")
+    p.add_argument("--db", required=True)
+    p.add_argument("--inventory", required=True)
+    p.add_argument("--min-score", type=int, required=True, dest="min_score")
+    p.add_argument("--margin", type=int, required=True)
+    p.add_argument("--scope", help="盘点范围（按 events.partition 精确匹配）")
+    p.add_argument("--confirm", action="append", default=[], metavar="DEVICE->ASSET_ID",
+                   help="人工确认的配对，可重复")
+    p.add_argument("--ban", action="append", default=[], metavar="DEVICE->ASSET_ID",
+                   help="人工禁止的配对，可重复")
+    p.set_defaults(func=cmd_entity_match_run)
+
+    p = sub.add_parser("entity-runs", help="列出已保存的匹配运行")
+    p.add_argument("--db", required=True)
+    p.set_defaults(func=cmd_entity_runs)
+
+    p = sub.add_parser("entity-run-explain",
+                       help="按运行编号查看整份运行或某设备的解释")
+    p.add_argument("--db", required=True)
+    p.add_argument("--run-id", type=int, required=True, dest="run_id")
+    p.add_argument("--device")
+    p.set_defaults(func=cmd_entity_run_explain)
+
+    p = sub.add_parser("entity-explain",
+                       help="按设备查看历史运行中的解释（不给 --run-id 时全部运行）")
+    p.add_argument("--db", required=True)
+    p.add_argument("--device")
+    p.add_argument("--run-id", type=int, dest="run_id")
+    p.set_defaults(func=cmd_entity_explain)
+
+    p = sub.add_parser("entity-reset",
+                       help="清空离线匹配运行记录，便于重跑演示（接入数据保留）")
+    p.add_argument("--db", required=True)
+    p.set_defaults(func=cmd_entity_reset)
+
+    p = sub.add_parser("entity-run-audit",
+                       help="用穷举实现核对已保存运行的分数、唯一性与约束")
+    p.add_argument("--db", required=True)
+    p.add_argument("--run-id", type=int, required=True, dest="run_id")
+    p.set_defaults(func=cmd_entity_run_audit)
 
     # --- 设备联动异常识别器 -------------------------------------------
     p = sub.add_parser("linkage-advance",

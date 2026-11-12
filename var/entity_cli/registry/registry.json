@@ -1,0 +1,14 @@
+{
+  "record_type": "landing.Event",
+  "writers": {
+    "w-signal-v1": {
+      "file": "writers/w-signal-v1.json"
+    }
+  },
+  "readers": {
+    "1": {
+      "file": "readers/v1.json"
+    }
+  },
+  "active_reader": "1"
+}

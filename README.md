@@ -22,12 +22,19 @@ avro_landing/
   linkage_store.py  # 识别器持久状态：来源总账/水位/窗口/候选/结论/依据
   linkage.py        # 推进：吸收来源 -> 应用水位 -> 结算到期窗口（单事务）
   linkage_audit.py  # 独立核对器：对已接纳信号做全量窗口枚举
+  entity_names.py   # 离线实体匹配口径：名称清理、整数编辑距离、台账校验
+  entity_solver.py  # 全局一对一最大权匹配（整数匈牙利算法）+ 同分方案计数
+  entity_match.py   # 候选构造、人工限制校验、替代解与"唯一可靠"判定
+  entity_store.py   # 匹配运行持久化：参数/台账快照/来源/候选/限制/分配/替代
+  entity_run.py     # 一致读视图 + 单事务保存 + 按运行编号/设备解释
+  entity_audit.py   # 独立穷举核对：小规模样例的最优值/替代值/唯一性/约束
 contracts/     # 示例契约 JSON（writer v1/v2、信号 writer、reader v1..v3、信号 reader）
-tests/         # 真实二进制 Avro 端到端测试 + 识别器规则测试
-examples/      # CLI 可复现演示脚本与批文件生成器
+tests/         # 真实二进制 Avro 端到端测试 + 识别器规则测试 + 实体匹配测试
+examples/      # CLI 可复现演示脚本、批文件生成器与离线台账样本
 run_tests.py   # python -I 隔离模式测试引导
 run_demo.py    # 接入链路的端到端演示（含崩溃恢复）
 run_linkage_demo.py  # 识别器端到端演示（规则边界 + 崩溃 + 独立核对）
+run_entity_demo.py   # 实体匹配端到端演示（贪心反例/同分/共享别名/人工限制/台账更正）
 cli_iso.py     # python -I 隔离模式 CLI 包装
 ```
 
@@ -94,7 +101,7 @@ SQLite 事务（`BEGIN IMMEDIATE`）内提交。进程在 COMMIT 前任意点退
 python3 -m pip install -r requirements.txt   # 仅依赖 fastavro
 ```
 
-### 4.1 自动化测试（44 个真实二进制 Avro + 识别器用例）
+### 4.1 自动化测试（72 个真实二进制 Avro + 识别器 + 实体匹配用例）
 
 ```bash
 python3 -I run_tests.py        # -I 隔离模式；引导脚本自动补依赖路径
@@ -102,9 +109,13 @@ python3 -I run_tests.py        # -I 隔离模式；引导脚本自动补依赖�
 
 覆盖：字段默认值、数字提升单向性、nullable 双分支、alias、嵌套缺字段、
 未知 ID 后补注册、offset 缺口补齐、重复再处理幂等、坏字节、越界结构拒绝、
-预检门禁、writer 不可变、崩溃共同恢复；以及识别器的开窗阈值/闭开区间、
+预检门禁、writer 不可变、崩溃共同恢复；识别器的开窗阈值/闭开区间、
 候选排序、RESET 取消、三种最终结论、水位严格大于、未声明阻止结算、
-水位倒退、迟到旁路、跨分区合并、旧位置隔离修复、幂等与崩溃恢复。
+水位倒退、迟到旁路、跨分区合并、旧位置隔离修复、幂等与崩溃恢复；
+实体匹配的名称口径（NFKC/casefold/去非字母数字/中文保留/空串无效）、
+整数编辑距离与分数、共享别名暴露、全局最优（贪心反例）、同分方案计数、
+禁止边/人工确认占用、替代解与 gap、margin 严格大于、冲突整份拒绝、
+一致读视图、运行保存与旧解释可查、穷举核对。
 
 ### 4.2 端到端演示（Python 编排，输出每一步状态）
 
@@ -129,7 +140,19 @@ bash examples/run_linkage_cli_demo.sh  # 纯 CLI：推进/查询/核对/崩溃�
 窗口结束前补入 RESET、右端点低压与端点水位的严格差别、迟到 RESET 被旁路、
 旧位置隔离消息修好后首次被分析、事务内写入部分结论后强杀进程、独立全量枚举核对。
 
-### 4.5 手工 CLI 命令
+### 4.5 离线实体匹配演示
+
+```bash
+python3 -I run_entity_demo.py            # Python 编排：8 个场景 + 逐运行穷举核对
+bash examples/run_entity_cli_demo.sh     # 纯 CLI：台账校验/运行/解释/冲突/更正
+```
+
+`run_entity_demo.py` 覆盖：全角/大小写/分隔符与共享别名、贪心选择比全局分配差、
+两套同分最优方案留给人工、人工确认占用资产后的重新分配、禁止一条边后最优解改变、
+无候选与清理后空串、margin 端点（gap 严格大于）、台账更正后的新盘点与旧运行解释、
+输入错误整份拒绝。所有设备名都先编码成真实 Avro datum 经 `ingest` 落进 `events`。
+
+### 4.6 手工 CLI 命令
 
 ```bash
 CLI=(python3 -I cli_iso.py)
@@ -160,6 +183,21 @@ $CLI linkage-sources   --db ./var/landing.db --config factory-a,factory-b --stat
 $CLI linkage-watermarks --db ./var/landing.db --config factory-a,factory-b
 $CLI linkage-audit     --db ./var/landing.db --config factory-a,factory-b  # 不一致退出码 1
 $CLI linkage-reset     --db ./var/landing.db   # 清空识别器状态（接入数据保留）
+```
+
+离线实体匹配命令（设备值只读 `events`，不读手填输入）：
+
+```bash
+$CLI entity-inventory-check --inventory examples/entity_inventory/assets_v1.json
+$CLI entity-match-run --db ./var/landing.db \
+      --inventory examples/entity_inventory/assets_v1.json \
+      --min-score 0 --margin 10 --scope factory-a \
+      [--confirm '送风机->AST-004'] [--ban '冷却泵－ＰＡ－１００->AST-001']
+$CLI entity-runs        --db ./var/landing.db
+$CLI entity-run-explain --db ./var/landing.db --run-id 1 [--device '送风机']
+$CLI entity-explain     --db ./var/landing.db --device '送风机' [--run-id 1]
+$CLI entity-run-audit   --db ./var/landing.db --run-id 1   # 不一致退出码 1
+$CLI entity-reset       --db ./var/landing.db             # 清空匹配运行（接入数据保留）
 ```
 
 `linkage-advance` 在**一个事务**内完成：先按推进开始时的旧水位分类首次见到的
@@ -264,3 +302,93 @@ $CLI ingest --registry ./var/r --db ./var/landing.db --batch batch_crash.json \
 - 到期窗口必须有结论，且状态、区间、来源依据一致；
 - 未到期窗口不得有结论（列入 `pending`）；
 - 线上结论不得多出。
+
+## 7. 离线实体匹配（采集标识 -> 资产编号）
+
+把已落库 `events` 里的 device 唯一值统一到资产编号，供后续关联设备档案。
+算法全程整数、可逐项复核；不连真实设备、不需要网页。
+
+### 7.1 名称清理与候选口径
+
+| 项 | 口径 |
+|---|---|
+| 清理 | Unicode NFKC -> casefold -> 去掉所有非字母/数字类别（L*/N*）字符；中文属 Lo，保留 |
+| 无效名称 | 清理后为空串（如 `···`、`％`）不参与匹配，原因 `EMPTY_DEVICE_NAME` |
+| 编辑距离 | Levenshtein，插入/删除/替换各算 1 |
+| 候选资格 | 距离 `d <= 2`；采集名分别与正式名、每个别名比较 |
+| 分数 | 正式名 `100-10d`；别名 `95-10d`；同一资产取最高分 |
+| 门槛 | 只有分数 `>= min_score`（0..100）的边参与自动分配；未配对得 0 |
+| 候选依据 | 每条候选都保存原名称、清理后名称、正式名/别名身份、距离、分数 |
+
+同一清理后别名可以出现在不同资产：`shared_aliases` 显式列出，候选上的
+`shared_alias` 标记为真。归属由全局总分与人工限制决定，**绝不按文件顺序**。
+
+### 7.2 全局分配（不是逐个设备贪心）
+
+一份台账 = 一次盘点范围。求解在整个范围上做**最大权一对一匹配**
+（整数匈牙利算法 / 带势函数的最短增广路，允许不配对）：
+一个资产最多一个采集标识，一个标识最多一个资产。逐个设备挑最像的局部贪心
+可能抢掉另一台设备唯一合适的资产，因此不使用。
+
+同分方案：展示用的方案按（设备名，资产编号）稳定排序，同时报告
+`equivalent_optima`（同分方案数量）与每个自动配对的替代解；这种排序只用于
+稳定展示，不作为"唯一可靠"的结论。
+
+### 7.3 人工确认与禁止
+
+- 确认 `DEVICE->ASSET_ID` **先占用两端资源**，再从剩余问题中扣除；
+  它可越过自动分数门槛，但必须存在可复核的候选（距离 <= 2），
+  否则没有候选依据、整份请求拒绝。
+- 禁止 `DEVICE->ASSET_ID` 在**所有求解**（含替代解）中有效。
+- 以下冲突整份拒绝、退出码 2、不写入任何运行：
+  两条确认争用同一设备 / 同一资产、引用不存在的设备或资产、
+  同一配对同时确认又禁止。参数非法（`min_score` 越界、`margin < 0`）同样拒绝。
+
+### 7.4 唯一可靠与 margin
+
+设最优总分 `S`。对最优方案中每个未经人工确认的设备：
+
+- 已配对：禁掉它当前的选择再求最优 `S_alt`；`gap = S - S_alt`。
+- 未配对：改为要求它必须配到某个合格资产再求最优 `S_alt`，
+  该子问题不可行即"无替代"，否则记录 `gap`。
+
+存在替代方案时 `gap >= 0`；不存在时标记**无替代**。自动配对只有
+**无替代**或 **`gap > margin`（严格大于）** 才写为 `CONFIRMED`；
+其余写为 `PENDING`，并在解释里给出原选择、替代选择、`S` 与 `S_alt`。
+人工确认不做自动置信判断（直接 `HUMAN_CONFIRMED` / `CONFIRMED`）。
+
+未匹配原因：`EMPTY_DEVICE_NAME`、`NO_QUALIFYING_CANDIDATE`、
+`ALL_CANDIDATES_BELOW_MIN_SCORE`（含被人工限制占满）、`UNMATCHED_BY_GLOBAL_OPTIMUM`
+（有合格候选但配上去会降低全局总分）。
+
+### 7.5 一致读与运行留痕
+
+`entity-match-run` 在同一个 SQLite 连接上先显式 `BEGIN` 读取一致快照
+（device 唯一值、已有运行编号），再在 `BEGIN IMMEDIATE` 事务里整体写入：
+运行参数、台账 SHA-256 与规范化快照、每个设备的全部来源坐标、候选依据、
+人工限制、全局分配与替代解。盘点输入有错时事务回滚，不留半份结果。
+
+台账快照随运行保存，因此**台账更正后的新运行不改变旧运行的解释**；
+`entity-run-explain --run-id N` 随时可复查原始参数、台账内容摘要、
+来源、候选、人工限制、全局分配与替代解。
+
+| 表 | 作用 |
+|---|---|
+| `match_runs` | 每次运行：参数、台账摘要与快照、总分、同分方案计数、人工限制 |
+| `match_devices` | 每设备结论：状态/决策/分数/候选/替代解/gap/未匹配原因 |
+| `match_sources` | 设备在 `events` 中的全部来源坐标 |
+| `match_candidates` | 候选依据（原名称/清理名/身份/距离/得分/共享别名/可用性） |
+| `match_human_constraints` | 确认与禁止，逐条留痕 |
+| `match_alternatives` | 每个自动配对的替代选择 |
+
+### 7.6 独立穷举核对
+
+`entity-run-audit` 不复用生产求解器：小规模样例（设备 <= 12、资产 <= 12，
+并设节点预算）用**递归枚举全部合法配对**重算最优总分、同分方案数、
+每个设备的替代值与 `gap`，再逐条比对运行记录：
+
+- 分数合计与穷举最优一致；
+- 自动配对分数不低于 `min_score`，人工确认覆盖门槛时按确认口径；
+- 人工禁止的边从未进入任何解（含替代解）；
+- 唯一性判定（无替代 / `gap > margin`）与穷举一致；
+- 替代选择确实能让替代解保持 `S_alt`（同分替代的展示顺序不作唯一性）。

@@ -1,0 +1,18 @@
+{
+  "packets": [
+    {
+      "partition": "greedy-line",
+      "offset": 0,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "GmdyZWVkeS1saW5lLTAg5Ya35Y205rO1IFBBLTEwMNAPFlRFTVBFUkFUVVJFAgAAAAAAgFZAEnBsYW50LWJ1cwA="
+    },
+    {
+      "partition": "greedy-line",
+      "offset": 1,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "GmdyZWVkeS1saW5lLTEi5Ya35Y205rO1IFBBLTEwMFigHxZURU1QRVJBVFVSRQIAAAAAAIBWQBJwbGFudC1idXMA"
+    }
+  ]
+}

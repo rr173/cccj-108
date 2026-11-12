@@ -1,0 +1,88 @@
+{
+  "packets": [
+    {
+      "partition": "factory-a",
+      "offset": 0,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS0wPOWGt+WNtOazte+8je+8sO+8oe+8je+8ke+8kO+8kNAPFlRFTVBFUkFUVVJFAgAAAAAAgFZAEnBsYW50LWJ1cwA="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 1,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS0xIuWGt+WNtOaztSBQQS0xMDFYoB8WVEVNUEVSQVRVUkUCAAAAAACAVkAScGxhbnQtYnVzAA=="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 2,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS0yIuWGt+WNtOaztSBQQS0xMDBC8C4WVEVNUEVSQVRVUkUCAAAAAACAVkAScGxhbnQtYnVzAA=="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 3,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS0zIOWGt+WNtOaztSBQQS05MDDAPhZURU1QRVJBVFVSRQIAAAAAAIBWQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-a",
+      "offset": 4,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS00IuWGt+WNtOaztSBQQS05MDBYkE4WVEVNUEVSQVRVUkUCAAAAAACAVkAScGxhbnQtYnVzAA=="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 5,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS01OOW+queOr+mjjuacuiDvvKbvvKHvvK7vvI3vvJHgXRZURU1QRVJBVFVSRQIAAAAAAIBWQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-a",
+      "offset": 6,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS02EumAgemjjuacurBtFlRFTVBFUkFUVVJFAgAAAAAAgFZAEnBsYW50LWJ1cwA="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 7,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS03EuW+queOr+aztYB9FlRFTVBFUkFUVVJFAgAAAAAAgFZAEnBsYW50LWJ1cwA="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 8,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS04HuepuuWOi+acuiBYWi03N9CMARZURU1QRVJBVFVSRQIAAAAAAIBWQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-a",
+      "offset": 9,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FmZhY3RvcnktYS05HuepuuWOi+acuuS4ieWPt6CcARZURU1QRVJBVFVSRQIAAAAAAIBWQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-a",
+      "offset": 10,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "GGZhY3RvcnktYS0xMAzCt8K3wrfwqwEWVEVNUEVSQVRVUkUCAAAAAACAVkAScGxhbnQtYnVzAA=="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 11,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "GGZhY3RvcnktYS0xMR7lhrfljbTms7UgWFotNzfAuwEWVEVNUEVSQVRVUkUCAAAAAACAVkAScGxhbnQtYnVzAA=="
+    }
+  ]
+}

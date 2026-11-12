@@ -1,0 +1,7 @@
+{
+  "revision": "greedy-v1",
+  "assets": [
+    {"asset_id": "AG-001", "name": "冷却泵 PA-100"},
+    {"asset_id": "AG-002", "name": "冷却泵 PX-900"}
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "packets": [
+    {
+      "partition": "tie-line",
+      "offset": 0,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FHRpZS1saW5lLTAS6YCB6aOO5py60A8WVEVNUEVSQVRVUkUCAAAAAACAVkAScGxhbnQtYnVzAA=="
+    },
+    {
+      "partition": "tie-line",
+      "offset": 1,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FHRpZS1saW5lLTEU6YCB6aOO5py6IKAfFlRFTVBFUkFUVVJFAgAAAAAAgFZAEnBsYW50LWJ1cwA="
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "type": "record",
+  "name": "landing.Event",
+  "namespace": "landing",
+  "fields": [
+    {
+      "name": "device",
+      "type": "string",
+      "default": ""
+    },
+    {
+      "name": "event_ms",
+      "type": "long",
+      "default": 0
+    },
+    {
+      "name": "signal_kind",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "value",
+      "type": [
+        "null",
+        "double"
+      ],
+      "default": null
+    },
+    {
+      "name": "amount",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "note",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "source",
+      "type": {
+        "type": "record",
+        "name": "Source",
+        "fields": [
+          {
+            "name": "channel",
+            "type": "string"
+          },
+          {
+            "name": "ref",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          }
+        ]
+      }
+    }
+  ]
+}
