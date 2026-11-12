@@ -1,0 +1,23 @@
+{
+  "record_type": "landing.Event",
+  "writers": {
+    "w-event-v1": {
+      "file": "writers/w-event-v1.json"
+    },
+    "w-event-v2": {
+      "file": "writers/w-event-v2.json"
+    },
+    "w-ghost": {
+      "file": "writers/w-ghost.json"
+    }
+  },
+  "readers": {
+    "1": {
+      "file": "readers/v1.json"
+    },
+    "2": {
+      "file": "readers/v2.json"
+    }
+  },
+  "active_reader": "2"
+}

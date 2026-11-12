@@ -1,0 +1,46 @@
+{
+  "packets": [
+    {
+      "partition": "orders",
+      "offset": 0,
+      "writer_schema_id": "w-event-v1",
+      "encoding": "base64",
+      "datum": "Bm8tMBQABndlYgA="
+    },
+    {
+      "partition": "orders",
+      "offset": 1,
+      "writer_schema_id": "w-event-v1",
+      "encoding": "base64",
+      "datum": "Bm8tMSgCBnZpcAZ3ZWICBnItMg=="
+    },
+    {
+      "partition": "orders",
+      "offset": 2,
+      "writer_schema_id": "w-event-v2",
+      "encoding": "base64",
+      "datum": "Bm8tMoLoiIdDAAZwb3MA"
+    },
+    {
+      "partition": "orders",
+      "offset": 4,
+      "writer_schema_id": "w-event-v1",
+      "encoding": "base64",
+      "datum": "Bm8tNFACEmdhcC1hZnRlcgZ3ZWIA"
+    },
+    {
+      "partition": "orders",
+      "offset": 5,
+      "writer_schema_id": "w-ghost",
+      "encoding": "base64",
+      "datum": "Bm8tNWQCFHVua25vd24taWQGd2ViAA=="
+    },
+    {
+      "partition": "orders",
+      "offset": 6,
+      "writer_schema_id": "w-event-v1",
+      "encoding": "hex",
+      "datum": "deadbeef"
+    }
+  ]
+}

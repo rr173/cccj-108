@@ -1,0 +1,58 @@
+{
+  "type": "record",
+  "name": "landing.Event",
+  "namespace": "landing",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string"
+    },
+    {
+      "name": "amount",
+      "type": "long",
+      "default": 0
+    },
+    {
+      "name": "remark",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null,
+      "aliases": [
+        "note"
+      ]
+    },
+    {
+      "name": "region",
+      "type": "string",
+      "default": "unknown"
+    },
+    {
+      "name": "source",
+      "type": {
+        "type": "record",
+        "name": "Source",
+        "fields": [
+          {
+            "name": "channel",
+            "type": "string"
+          },
+          {
+            "name": "ref",
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null
+          },
+          {
+            "name": "priority",
+            "type": "int",
+            "default": 0
+          }
+        ]
+      }
+    }
+  ]
+}

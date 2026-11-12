@@ -1,0 +1,11 @@
+{
+  "packets": [
+    {
+      "partition": "crash-demo",
+      "offset": 0,
+      "writer_schema_id": "w-event-v1",
+      "encoding": "base64",
+      "datum": "BmMtMJoBAhBjcmFzaC1tZQZ3ZWIA"
+    }
+  ]
+}

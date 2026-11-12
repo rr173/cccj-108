@@ -1,0 +1,25 @@
+{
+  "packets": [
+    {
+      "partition": "factory-b",
+      "offset": 2,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FnRlbXAtY2FuY2VsEmRldi1yZXNldMDXSxZURU1QRVJBVFVSRQIAAAAAAIBWQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-b",
+      "offset": 3,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "HnByZXNzdXJlLWNhbmNlbBJkZXYtcmVzZXSo30sQUFJFU1NVUkUCAAAAAAAAFEAScGxhbnQtYnVzAA=="
+    },
+    {
+      "partition": "factory-b",
+      "offset": 4,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "HnJlc2V0LWluLXdpbmRvdxJkZXYtcmVzZXTw5pQBClJFU0VUABJwbGFudC1idXMA"
+    }
+  ]
+}

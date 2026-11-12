@@ -1,0 +1,11 @@
+{
+  "packets": [
+    {
+      "partition": "factory-b",
+      "offset": 6,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "FHJlc2V0LWxhdGUSZGV2LXJlc2V04LCMAQpSRVNFVAAScGxhbnQtYnVzAA=="
+    }
+  ]
+}

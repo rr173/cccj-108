@@ -1,0 +1,46 @@
+{
+  "packets": [
+    {
+      "partition": "factory-a",
+      "offset": 0,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "CmVhcmx5GGRldi1iYWNrZmlsbMCEPRBQUkVTU1VSRQIAAAAAAAAoQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-a",
+      "offset": 1,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "CGxhdGUYZGV2LWJhY2tmaWxsoJwBFlRFTVBFUkFUVVJFAgAAAAAAwFdAEnBsYW50LWJ1cwA="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 2,
+      "writer_schema_id": "w-event-v1",
+      "encoding": "base64",
+      "datum": "GGxlZ2FjeS1vcmRlcgoABndlYgA="
+    },
+    {
+      "partition": "factory-a",
+      "offset": 3,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "CG51bGwYZGV2LWJhY2tmaWxsuBcQUFJFU1NVUkUAEnBsYW50LWJ1cwA="
+    },
+    {
+      "partition": "factory-b",
+      "offset": 0,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "CmNyb3NzEmRldi1jcm9zc8C4AhZURU1QRVJBVFVSRQIAAAAAAABWQBJwbGFudC1idXMA"
+    },
+    {
+      "partition": "factory-b",
+      "offset": 1,
+      "writer_schema_id": "w-signal-v1",
+      "encoding": "base64",
+      "datum": "CmNyb3NzEmRldi1jcm9zc7CJSxBQUkVTU1VSRQIAAAAAAAAyQBJwbGFudC1idXMA"
+    }
+  ]
+}

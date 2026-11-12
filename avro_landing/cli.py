@@ -30,6 +30,13 @@ from pathlib import Path
 
 from .adapter import LandingAdapter, Packet, SimulatedCrash
 from .compat import UnsupportedAvroStructure
+from .linkage import LinkageRecognizer, SimulatedCrash as LinkageSimulatedCrash
+from .linkage_audit import compare as compare_linkage
+from .linkage_store import (
+    LinkageConfigurationError,
+    LinkageStore,
+    LinkageWatermarkError,
+)
 from .registry import RegistryError, SchemaRegistry
 from .store import EventStore
 
@@ -233,6 +240,120 @@ def cmd_conflicts(args) -> None:
     _print({"conflicts": [dict(r) for r in rows]})
 
 
+# ---------------------------------------------------------------------- #
+# 设备联动异常识别器
+# ---------------------------------------------------------------------- #
+def _parse_partitions(raw: str) -> list[str]:
+    parts = [p.strip() for p in raw.split(",") if p.strip()]
+    if not parts:
+        raise SystemExit("--config 至少需要一个采集分区，逗号分隔")
+    return parts
+
+
+def _open_recognizer(args) -> tuple[EventStore, LinkageRecognizer]:
+    store = EventStore(args.db)
+    store.connect()
+    try:
+        recognizer = LinkageRecognizer(store, _parse_partitions(args.config))
+    except LinkageConfigurationError as exc:
+        store.close()
+        _print({"ok": False, "error": str(exc)})
+        raise SystemExit(2)
+    return store, recognizer
+
+
+def cmd_linkage_advance(args) -> None:
+    declarations: dict[str, int] = {}
+    for item in args.watermark:
+        if "=" not in item:
+            raise SystemExit(f"水位声明格式应为 分区=毫秒，收到 {item!r}")
+        partition, _, raw = item.partition("=")
+        try:
+            declarations[partition.strip()] = int(raw)
+        except ValueError:
+            raise SystemExit(f"水位必须是整数毫秒，收到 {raw!r}")
+
+    store, recognizer = _open_recognizer(args)
+    crash_hook = None
+    if args.crash_after_decision:
+        def crash_hook(stage: str, partition: str, offset: int) -> None:
+            raise LinkageSimulatedCrash(
+                f"模拟进程退出：{stage} 已写结论 partition={partition} offset={offset}，"
+                "事务未 COMMIT"
+            )
+    try:
+        report = recognizer.advance(declarations, crash_hook=crash_hook)
+    except LinkageWatermarkError as exc:
+        store.close()
+        _print({"ok": False, "error": str(exc)})
+        raise SystemExit(2)
+    except LinkageSimulatedCrash as exc:
+        store.close()
+        _print({"ok": False, "simulated_crash": str(exc),
+                "note": "事务整体回滚：水位与结论都不会留下部分状态"})
+        raise SystemExit(3)
+    store.close()
+    _print({"ok": True, **report})
+
+
+def _print_decision(recognizer: LinkageRecognizer, partition: str, offset: int) -> None:
+    _print(recognizer.query(partition, offset))
+
+
+def cmd_linkage_decisions(args) -> None:
+    store, recognizer = _open_recognizer(args)
+    if args.partition is not None and args.offset is not None:
+        _print_decision(recognizer, args.partition, args.offset)
+    else:
+        _print({"count": len(recognizer.decisions()), "decisions": recognizer.decisions()})
+    store.close()
+
+
+def cmd_linkage_waiting(args) -> None:
+    store, recognizer = _open_recognizer(args)
+    _print({"waiting": recognizer.waiting()})
+    store.close()
+
+
+def cmd_linkage_sources(args) -> None:
+    store, recognizer = _open_recognizer(args)
+    _print({"sources": recognizer.sources(args.state)})
+    store.close()
+
+
+def cmd_linkage_watermarks(args) -> None:
+    store, recognizer = _open_recognizer(args)
+    _print({"ok": True, **recognizer.watermarks()})
+    store.close()
+
+
+def cmd_linkage_audit(args) -> None:
+    store, recognizer = _open_recognizer(args)
+    report = compare_linkage(store)
+    store.close()
+    _print(report)
+    if not report["matched"]:
+        raise SystemExit(1)
+
+
+def cmd_linkage_reset(args) -> None:
+    """清空识别器状态；接入层数据（events/ingress/checkpoints/契约目录）保留。"""
+    store = EventStore(args.db)
+    store.connect()
+    LinkageStore(store).ensure_schema()
+    names = [
+        "linkage_decision_evidence", "linkage_decisions", "linkage_candidates",
+        "linkage_windows", "linkage_sources", "linkage_watermark_events",
+        "linkage_watermarks", "linkage_partitions",
+    ]
+    with store.transaction() as conn:
+        for name in names:
+            conn.execute(f"DELETE FROM {name}")
+    LinkageStore(store).ensure_schema()
+    store.close()
+    _print({"ok": True, "cleared": names})
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="avro_landing",
                                      description="Avro 事件落地适配器")
@@ -304,6 +425,52 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("conflicts", help="查看重传冲突")
     p.add_argument("--db", required=True)
     p.set_defaults(func=cmd_conflicts)
+
+    # --- 设备联动异常识别器 -------------------------------------------
+    p = sub.add_parser("linkage-advance",
+                       help="吸收新落地业务行 + 声明水位 + 结算到期窗口（单事务）")
+    p.add_argument("--db", required=True)
+    p.add_argument("--config", required=True,
+                   help="启动时固定的采集分区集合，逗号分隔（每次必须一致）")
+    p.add_argument("--watermark", action="append", default=[], metavar="PARTITION=MS",
+                   help="本次水位声明，可重复：--watermark factory-a=610000")
+    p.add_argument("--crash-after-decision", action="store_true",
+                   help="演示用：写入部分最终结论后、COMMIT 前强制退出（事务回滚）")
+    p.set_defaults(func=cmd_linkage_advance)
+
+    p = sub.add_parser("linkage-decisions",
+                       help="查询最终结论；给 --partition/--offset 时连来源依据一起查")
+    p.add_argument("--db", required=True)
+    p.add_argument("--config", required=True)
+    p.add_argument("--partition")
+    p.add_argument("--offset", type=int)
+    p.set_defaults(func=cmd_linkage_decisions)
+
+    p = sub.add_parser("linkage-waiting", help="查询尚未结算的窗口")
+    p.add_argument("--db", required=True)
+    p.add_argument("--config", required=True)
+    p.set_defaults(func=cmd_linkage_waiting)
+
+    p = sub.add_parser("linkage-sources", help="查询来源总账（含迟到旁路与跳过/拒绝原因）")
+    p.add_argument("--db", required=True)
+    p.add_argument("--config", required=True)
+    p.add_argument("--state", choices=["APPLIED", "SKIPPED", "REJECTED", "LATE_BYPASS"])
+    p.set_defaults(func=cmd_linkage_sources)
+
+    p = sub.add_parser("linkage-watermarks", help="查询分区水位与全局进度")
+    p.add_argument("--db", required=True)
+    p.add_argument("--config", required=True)
+    p.set_defaults(func=cmd_linkage_watermarks)
+
+    p = sub.add_parser("linkage-audit",
+                       help="用独立全量窗口枚举核对结论与来源依据（不匹配退出码 1）")
+    p.add_argument("--db", required=True)
+    p.add_argument("--config", required=True)
+    p.set_defaults(func=cmd_linkage_audit)
+
+    p = sub.add_parser("linkage-reset", help="清空识别器状态，便于重跑演示")
+    p.add_argument("--db", required=True)
+    p.set_defaults(func=cmd_linkage_reset)
 
     return parser
 
