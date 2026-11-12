@@ -1,0 +1,21 @@
+{
+  "type": "record",
+  "name": "landing.Event",
+  "namespace": "landing",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "amount", "type": "int"},
+    {"name": "note", "type": ["null", "string"], "default": null},
+    {
+      "name": "source",
+      "type": {
+        "type": "record",
+        "name": "Source",
+        "fields": [
+          {"name": "channel", "type": "string"},
+          {"name": "ref", "type": ["null", "string"], "default": null}
+        ]
+      }
+    }
+  ]
+}
